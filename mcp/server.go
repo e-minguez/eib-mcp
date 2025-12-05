@@ -133,18 +133,11 @@ func (s *Server) handleToolsList(req *JSONRPCRequest) *JSONRPCResponse {
 				{
 					"name": "generate_config",
 					"description": `Generates a valid edge-image-builder YAML configuration file.
-STRICT RULES:
-1. ROOT keys MUST be ONLY: "apiVersion", "image", "operatingSystem", "kubernetes", "embeddedArtifactRegistry".
-2. DO NOT create "os", "saltConfiguration", "k3s", "network" at the root.
-3. "kubernetes" MUST contain "version" (string), NOT "k3s" object.
-4. "operatingSystem" MUST contain "isoConfiguration" OR "rawConfiguration" (mutually exclusive).
-5. "operatingSystem.isoConfiguration" MUST contain "installDevice".
-6. "operatingSystem.rawConfiguration" MUST contain "diskSize".
-7. "kubernetes.nodes" MUST NOT contain IP addresses (only hostname, type, initializer).
-8. "kubernetes.helm.charts" MUST use "repositoryName", NOT "repoUrl".
-9. "kubernetes.helm.charts" MUST contain "version".
-10. "operatingSystem.time" MUST use "timezone" (lowercase), NOT "timeZone".
-11. "operatingSystem.time.ntp.servers" MUST be a list of STRINGS (e.g. "pool.ntp.org"), NOT objects.
+IMPORTANT GUIDELINES:
+1. "kubernetes.helm.charts.repositoryName" MUST match a "name" in "kubernetes.helm.repositories".
+2. "kubernetes.nodes" MUST NOT contain IP addresses (only hostname, type, initializer).
+3. "operatingSystem.time" MUST use "timezone" (lowercase), NOT "timeZone".
+4. Passwords: You can put plaintext in "encryptedPassword" or "password". The tool will automatically encrypt it.
 
 Example Structure:
 apiVersion: "1.0"
@@ -175,7 +168,10 @@ kubernetes:
     charts:
       - name: "chart"
         repositoryName: "repo"
-        version: "1.0.0"`,
+        version: "1.0.0"
+    repositories:
+      - name: "repo"
+        url: "https://charts.example.com"`,
 					"inputSchema": schemaMap,
 				},
 			},

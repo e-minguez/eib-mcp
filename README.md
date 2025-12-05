@@ -45,10 +45,10 @@ gemini mcp add eib-mcp /absolute/path/to/eib-mcp/eib-mcp
 Once the server is added, you can ask Gemini to generate configurations:
 
 > "Generate an Edge Image Builder configuration for an ISO image based on slmicro-6.2.iso, targeting x86_64 architecture. The output name should be 'my-edge-image' and it should install to /dev/sda. It should deploy a 3 nodes kubernetes cluster with nodes names "node1", "node2" and "node3" as:
-> * hostname: node1, IP: 1.1.1.1, role: initializer
+> * hostname: node1, IP: 1.1.1.1, type: initializer
 > * hostname: node2, IP: 1.1.1.2, role: agent
 > * hostname: node3, IP: 1.1.1.3, role: agent
-> The kubernetes version should be k3s 1.33.4-k3s1 and it should deploy a cert-manager helm chart (the latest one available according to https://cert-manager.io/docs/releases/). It should create a user called "suse" with password "suse" and set ntp to "foo.ntp.org". The VIP address for the API should be 1.2.3.4"
+> The kubernetes version should be k3s 1.33.4-k3s1 and it should deploy a cert-manager helm chart (the latest one available according to https://cert-manager.io/docs/installation/helm/). It should create a user called "suse" with password "suse" and set ntp to "foo.ntp.org". The VIP address for the API should be 1.2.3.4"
 
 Gemini will use the `generate_config` tool to create the valid YAML.
 
