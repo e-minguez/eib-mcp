@@ -1,0 +1,22 @@
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+        "name": "generate_config",
+        "arguments": {
+            "apiVersion": "1.0",
+            "image": {
+                "imageType": "iso",
+                "arch": "x86_64",
+                "baseImage": "sles15sp5",
+                "outputImageName": "eib-image"
+            },
+            "operatingSystem": {
+                "isoConfiguration": {
+                    "installDevice": "/dev/sda"
+                }
+            }
+        }
+    }
+}
