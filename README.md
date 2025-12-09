@@ -75,7 +75,7 @@ A YAML string representing the configuration.
 
 ### Code Documentation
 
-The source code is thoroughly documented using GoDoc conventions. You can view the documentation by running:
+The source code is thoroughly documented using GoDoc conventions. This documentation was generated using AI (Jules). You can view the documentation by running:
 
 ```bash
 godoc -http=:6060
