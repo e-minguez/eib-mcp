@@ -1,3 +1,7 @@
+// Package mcp implements the Model Context Protocol (MCP) server logic.
+//
+// It handles JSON-RPC 2.0 requests and responses, providing specific tools
+// for generating EIB configurations.
 package mcp
 
 import (
@@ -12,40 +16,76 @@ import (
 )
 
 // JSONRPCRequest represents a JSON-RPC 2.0 request.
+//
+// It encapsulates the method to be called, its parameters, and the request ID.
 type JSONRPCRequest struct {
-	JSONRPC string          `json:"jsonrpc"`
-	Method  string          `json:"method"`
-	Params  json.RawMessage `json:"params,omitempty"`
-	ID      interface{}     `json:"id"`
+	// JSONRPC specifies the version of the JSON-RPC protocol. Must be "2.0".
+	JSONRPC string `json:"jsonrpc"`
+	// Method is the name of the method to be invoked.
+	Method string `json:"method"`
+	// Params contains the parameter values for the method.
+	Params json.RawMessage `json:"params,omitempty"`
+	// ID is a unique identifier established by the client.
+	ID interface{} `json:"id"`
 }
 
 // JSONRPCResponse represents a JSON-RPC 2.0 response.
+//
+// It contains the result of a successful method invocation or an error object.
 type JSONRPCResponse struct {
-	JSONRPC string        `json:"jsonrpc"`
-	Result  interface{}   `json:"result,omitempty"`
-	Error   *JSONRPCError `json:"error,omitempty"`
-	ID      interface{}   `json:"id"`
+	// JSONRPC specifies the version of the JSON-RPC protocol. Must be "2.0".
+	JSONRPC string `json:"jsonrpc"`
+	// Result contains the data returned by the invoked method.
+	Result interface{} `json:"result,omitempty"`
+	// Error provides details about any error that occurred during execution.
+	Error *JSONRPCError `json:"error,omitempty"`
+	// ID matches the identifier of the request this response corresponds to.
+	ID interface{} `json:"id"`
 }
 
 // JSONRPCError represents a JSON-RPC 2.0 error.
+//
+// It provides a code and a message to describe the error.
 type JSONRPCError struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+	// Code is an integer indicating the error type.
+	Code int `json:"code"`
+	// Message is a concise string description of the error.
+	Message string `json:"message"`
+	// Data provides additional information about the error.
+	Data interface{} `json:"data,omitempty"`
 }
 
 // Server implements the MCP server.
+//
+// It reads JSON-RPC requests from an input stream and writes responses
+// to an output stream.
 type Server struct {
 	in  io.Reader
 	out io.Writer
 }
 
 // NewServer creates a new MCP server.
+//
+// It takes an input reader and an output writer for communication.
+//
+// Parameters:
+//   - in: The io.Reader to read requests from.
+//   - out: The io.Writer to write responses to.
+//
+// Returns:
+//   - *Server: A pointer to the newly created Server instance.
 func NewServer(in io.Reader, out io.Writer) *Server {
 	return &Server{in: in, out: out}
 }
 
 // Serve starts the server loop.
+//
+// It continuously reads from the input stream, processes requests,
+// and writes responses to the output stream until the input is closed
+// or an error occurs.
+//
+// Returns:
+//   - error: An error if reading from the input fails, or nil on clean exit.
 func (s *Server) Serve() error {
 	scanner := bufio.NewScanner(s.in)
 	for scanner.Scan() {
@@ -75,6 +115,15 @@ func (s *Server) Serve() error {
 	return scanner.Err()
 }
 
+// handleRequest processes a single JSON-RPC request and returns a response.
+//
+// It routes the request to the appropriate handler based on the method name.
+//
+// Parameters:
+//   - req: The incoming JSON-RPC request.
+//
+// Returns:
+//   - *JSONRPCResponse: The response to be sent back to the client, or nil if no response is needed (e.g. notifications).
 func (s *Server) handleRequest(req *JSONRPCRequest) *JSONRPCResponse {
 	switch req.Method {
 	case "initialize":
@@ -99,6 +148,15 @@ func (s *Server) handleRequest(req *JSONRPCRequest) *JSONRPCResponse {
 	}
 }
 
+// handleInitialize handles the "initialize" method.
+//
+// It returns the server's protocol version, capabilities, and information.
+//
+// Parameters:
+//   - req: The initialize request.
+//
+// Returns:
+//   - *JSONRPCResponse: The response containing server details.
 func (s *Server) handleInitialize(req *JSONRPCRequest) *JSONRPCResponse {
 	return &JSONRPCResponse{
 		JSONRPC: "2.0",
@@ -116,6 +174,16 @@ func (s *Server) handleInitialize(req *JSONRPCRequest) *JSONRPCResponse {
 	}
 }
 
+// handleToolsList handles the "tools/list" method.
+//
+// It returns a list of available tools, including "generate_config",
+// along with their descriptions and input schemas.
+//
+// Parameters:
+//   - req: The tools/list request.
+//
+// Returns:
+//   - *JSONRPCResponse: The response containing the list of tools.
 func (s *Server) handleToolsList(req *JSONRPCRequest) *JSONRPCResponse {
 	// Load schema to embed in tool definition
 	schemaBytes := schema.GetRawSchema()
@@ -179,6 +247,16 @@ kubernetes:
 	}
 }
 
+// handleToolsCall handles the "tools/call" method.
+//
+// It executes the requested tool (currently only "generate_config")
+// with the provided arguments.
+//
+// Parameters:
+//   - req: The tools/call request containing the tool name and arguments.
+//
+// Returns:
+//   - *JSONRPCResponse: The response containing the tool's output or an error.
 func (s *Server) handleToolsCall(req *JSONRPCRequest) *JSONRPCResponse {
 	var params struct {
 		Name      string                 `json:"name"`

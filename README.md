@@ -73,6 +73,16 @@ A YAML string representing the configuration.
 - `schema/`: Schema loading and embedding.
 - `tool/`: Tool logic and validation.
 
+### Code Documentation
+
+The source code is thoroughly documented using GoDoc conventions. This documentation was generated using AI (Jules). You can view the documentation by running:
+
+```bash
+godoc -http=:6060
+```
+
+And navigating to `http://localhost:6060/pkg/github.com/e-minguez/eib-mcp/`.
+
 ### Testing
 
 You can verify the server functionality using the provided test request:
